@@ -1,0 +1,12 @@
+program:
+
+import socket
+
+host = input("Enter Website: ")
+
+print(socket.gethostbyname_ex(host))
+
+output:
+
+Enter Website: www.google.com
+('www.google.com', [], ['142.250.183.196'])
