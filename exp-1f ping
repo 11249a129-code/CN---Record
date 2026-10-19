@@ -1,0 +1,17 @@
+program:
+
+import os
+
+host = input("Enter IP:")
+
+os.system("ping " + host)
+
+output:
+
+Enter IP: 8.8.8.8
+
+Pinging 8.8.8.8 with 32 bytes of data:
+Reply from 8.8.8.8: bytes=32 time=20ms TTL=117
+Reply from 8.8.8.8: bytes=32 time=19ms TTL=117
+Reply from 8.8.8.8: bytes=32 time=21ms TTL=117
+Reply from 8.8.8.8: bytes=32 time=20ms TTL=117
