@@ -1,0 +1,15 @@
+program:
+
+import socket
+
+website = "www.google.com"
+
+ip = socket.gethostbyname(website)
+
+print("Website :", website)
+print("IP Address :", ip)
+
+output:
+
+Website : www.google.com
+IP Address : 142.250.183.196
