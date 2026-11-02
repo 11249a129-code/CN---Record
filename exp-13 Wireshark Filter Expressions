@@ -1,0 +1,30 @@
+
+from scapy.all import *
+
+# Capture packets
+packets = sniff(count=10)
+
+print("\nAll Captured Packets:")
+packets.summary()
+
+# TCP Filter
+print("\nTCP Packets:")
+packets_tcp = packets.filter(lambda p: TCP in p)
+packets_tcp.summary()
+
+# UDP Filter
+print("\nUDP Packets:")
+packets_udp = packets.filter(lambda p: UDP in p)
+packets_udp.summary()
+
+# ICMP Filter
+print("\nICMP Packets:")
+packets_icmp = packets.filter(lambda p: ICMP in p)
+packets_icmp.summary()
+
+# IP Filter
+print("\nIP Packets:")
+packets_ip = packets.filter(lambda p: IP in p)
+packets_ip.summary()
+
+print("\nPacket Filtering Completed!")
