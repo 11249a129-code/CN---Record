@@ -1,0 +1,78 @@
+
+# Create simulator
+set ns [new Simulator]
+
+# Create trace file
+set tf [open congestion.tr w]
+$ns trace-all $tf
+
+# Create NAM file
+set nf [open congestion.nam w]
+$ns namtrace-all $nf
+
+# Create nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+
+# Create network links
+$ns duplex-link $n0 $n2 10Mb 10ms DropTail
+$ns duplex-link $n1 $n2 10Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 20ms DropTail
+
+# Set queue limit to create congestion
+$ns queue-limit $n2 $n3 10
+
+# Create TCP agent
+set tcp [new Agent/TCP]
+$tcp set window_ 20
+$tcp set packetSize_ 1000
+$ns attach-agent $n0 $tcp
+
+# Create TCP sink
+set sink [new Agent/TCPSink]
+$ns attach-agent $n3 $sink
+
+# Connect TCP and sink
+$ns connect $tcp $sink
+
+# Create FTP application
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+
+# Create second TCP connection
+set tcp2 [new Agent/TCP]
+$tcp2 set window_ 20
+$tcp2 set packetSize_ 1000
+$ns attach-agent $n1 $tcp2
+
+set sink2 [new Agent/TCPSink]
+$ns attach-agent $n3 $sink2
+
+$ns connect $tcp2 $sink2
+
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+
+# Start and stop traffic
+$ns at 0.5 "$ftp start"
+$ns at 1.0 "$ftp2 start"
+$ns at 8.0 "$ftp stop"
+$ns at 8.0 "$ftp2 stop"
+
+# Finish procedure
+proc finish {} {
+    global ns tf nf
+    $ns flush-trace
+    close $tf
+    close $nf
+    exec nam congestion.nam &
+    exit 0
+}
+
+# End simulation
+$ns at 9.0 "finish"
+
+# Run simulation
+$ns run
