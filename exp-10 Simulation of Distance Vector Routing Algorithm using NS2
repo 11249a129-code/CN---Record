@@ -1,0 +1,64 @@
+
+# Create simulator
+set ns [new Simulator]
+
+# Create trace file
+set tf [open dv.tr w]
+$ns trace-all $tf
+
+# Create NAM file
+set nf [open dv.nam w]
+$ns namtrace-all $nf
+
+# Create nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+
+# Create links
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 1Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 10ms DropTail
+$ns duplex-link $n0 $n3 1Mb 30ms DropTail
+
+# Enable Distance Vector Routing
+$ns rtproto DV
+
+# Create UDP agent
+set udp [new Agent/UDP]
+$ns attach-agent $n0 $udp
+
+# Create Null agent
+set null [new Agent/Null]
+$ns attach-agent $n3 $null
+
+# Connect UDP and Null
+$ns connect $udp $null
+
+# Create CBR traffic
+set cbr [new Application/Traffic/CBR]
+$cbr set packetSize_ 512
+$cbr set interval_ 0.1
+$cbr attach-agent $udp
+
+# Start and stop traffic
+$ns at 1.0 "$cbr start"
+$ns at 8.0 "$cbr stop"
+
+# Finish procedure
+proc finish {} {
+    global ns tf nf
+    $ns flush-trace
+    close $tf
+    close $nf
+    exec nam dv.nam &
+    exit 0
+}
+
+# End simulation
+$ns at 9.0 "finish"
+
+# Run simulation
+$ns run
+
