@@ -1,0 +1,117 @@
+
+# Create simulator
+set ns [new Simulator]
+
+# Create trace file
+set tf [open tcp.tr w]
+$ns trace-all $tf
+
+# Create NAM file
+set nf [open tcp.nam w]
+$ns namtrace-all $nf
+
+# Create nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+
+# Create duplex links
+$ns duplex-link $n0 $n2 2Mb 10ms DropTail
+$ns duplex-link $n1 $n2 2Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 20ms DropTail
+
+# Create TCP agent
+set tcp [new Agent/TCP]
+$ns attach-agent $n0 $tcp
+
+# Create TCP sink
+set sink [new Agent/TCPSink]
+$ns attach-agent $n3 $sink
+
+# Connect TCP and sink
+$ns connect $tcp $sink
+
+# Create FTP application
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+
+# Start and stop FTP
+$ns at 0.5 "$ftp start"
+$ns at 4.5 "$ftp stop"
+
+# Finish procedure
+proc finish {} {
+    global ns tf nf
+    $ns flush-trace
+    close $tf
+    close $nf
+    exec nam tcp.nam &
+    exit 0
+}
+
+# Schedule simulation end
+$ns at 5.0 "finish"
+
+# Run simulation
+$ns run
+
+
+# Create simulator
+set ns [new Simulator]
+
+# Create trace file
+set tf [open udp.tr w]
+$ns trace-all $tf
+
+# Create NAM file
+set nf [open udp.nam w]
+$ns namtrace-all $nf
+
+# Create nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+
+# Create duplex links
+$ns duplex-link $n0 $n2 2Mb 10ms DropTail
+$ns duplex-link $n1 $n2 2Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 20ms DropTail
+
+# Create UDP agent
+set udp [new Agent/UDP]
+$ns attach-agent $n0 $udp
+
+# Create Null agent
+set null [new Agent/Null]
+$ns attach-agent $n3 $null
+
+# Connect UDP and Null
+$ns connect $udp $null
+
+# Create CBR application
+set cbr [new Application/Traffic/CBR]
+$cbr set packetSize_ 512
+$cbr set interval_ 0.01
+$cbr attach-agent $udp
+
+# Start and stop CBR
+$ns at 0.5 "$cbr start"
+$ns at 4.5 "$cbr stop"
+
+# Finish procedure
+proc finish {} {
+    global ns tf nf
+    $ns flush-trace
+    close $tf
+    close $nf
+    exec nam udp.nam &
+    exit 0
+}
+
+# Schedule simulation end
+$ns at 5.0 "finish"
+
+# Run simulation
+$ns run
